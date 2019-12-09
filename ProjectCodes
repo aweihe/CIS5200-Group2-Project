@@ -1,4 +1,4 @@
-Codes to our project
+Codes of our project
 
 1, Upload the dataset to AWS cluster:
 Scp 311Service.csv whe8@34.221.40.43:/home/whe8/
