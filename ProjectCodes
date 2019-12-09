@@ -76,7 +76,7 @@ Select City, count(UniqueKey) as NumofCase from Service group by City order by N
 9,Case number by complaint channel (top 10)
 Select OpenDataChannelType, count(UniqueKey) as NumofCase from Service group by OpenDataChannelType ORDER BY NumofCase DESC LIMIT 10;
 
-10, Case number by complaint and Borough (over 15000)
+10, Case number by complaint and Borough (over 150000)
 Select Borough,ComplaintType,count(UniqueKey) as NumofCase from Service group by Borough,ComplaintType having NumofCase>150000 order by NumofCase limit 100;
 
 
