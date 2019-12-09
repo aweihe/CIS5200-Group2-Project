@@ -79,7 +79,6 @@ Select OpenDataChannelType, count(UniqueKey) as NumofCase from Service group by 
 10, Case number by complaint and Borough (over 150000)
 Select Borough,ComplaintType,count(UniqueKey) as NumofCase from Service group by Borough,ComplaintType having NumofCase>150000 order by NumofCase limit 100;
 
-
 11, All the cases reported on July 4 2019. 
 
 We want to see the case distribution geographically by using map. Some records does not have either latitude or longitude, therefore we use a "where condition" to ensure the data completeness. Hereafter is the select query in Hive: 
