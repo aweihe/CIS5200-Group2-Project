@@ -3,7 +3,7 @@ Codes of our project
 1, Upload the dataset to AWS cluster:
 Scp 311Service.csv whe8@34.221.40.43:/home/whe8/
 
-2, Create folder for holding in hadoop distributed  file system to hold the dataset
+2, Create folder in hadoop distributed  file system to hold the dataset
 hdfs dfs -mkdir CIS5200Project
 
 3, Move the dataset file to hadoop distributed  file system: 
