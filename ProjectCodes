@@ -82,7 +82,7 @@ Select Borough,ComplaintType,count(UniqueKey) as NumofCase from Service group by
 
 11, All the cases reported on July 4 2019. 
 
-We want to see the case distribution of case geographically using map.Some records does not have either latitude or longitude, therefore we use a where condition to ensure the data completeness. Hereafter is the select query in Hive: 
+We want to see the case distribution geographically by using map. Some records does not have either latitude or longitude, therefore we use a "where condition" to ensure the data completeness. Hereafter is the select query in Hive: 
 
 Select Latitude, Longitude,ComplaintType,CreatedDate,ClosedDate from Service where Substr(CreatedDate,1,10)='07/04/2019' and Latitude !='' and Longitude !='';
 
