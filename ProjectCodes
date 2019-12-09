@@ -1,0 +1,100 @@
+Codes to our project
+
+1, Upload the dataset to AWS cluster:
+Scp 311Service.csv whe8@34.221.40.43:/home/whe8/
+
+2, Create folder for holding in hadoop distributed  file system to hold the dataset
+hdfs dfs -mkdir CIS5200Project
+
+3, Move the dataset file to hadoop distributed  file system: 
+hdfs dfs -put 311Service.csv /user/whe8/CIS5200Project/
+
+4, Create External table in Hive:
+
+CREATE EXTERNAL TABLE IF NOT EXISTS Service (
+UniqueKey STRING,
+CreatedDate STRING,
+ClosedDate STRING,
+Agency STRING,
+AgencyName STRING,
+ComplaintType STRING,
+Descriptor STRING,
+LocationType STRING,
+IncidentZip STRING,
+IncidentAddress STRING,
+StreetName STRING,
+CrossStreet1 STRING,
+CrossStreet2 STRING,
+IntersectionStreet1 STRING,
+IntersectionStreet2 STRING,
+AddressType STRING,
+City STRING,
+Landmark STRING,
+FacilityType STRING,
+Status STRING,
+DueDate STRING,
+ResolutionDescription STRING,
+ResolutionActionUpdatedDate STRING,
+CommunityBoard STRING,
+BBL STRING,
+Borough STRING,
+XCoordinate STRING,
+YCoordinate STRING,
+OpenDataChannelType STRING,
+ParkFacilityName STRING,
+ParkBorough STRING,
+VehicleType STRING,
+TaxiCompanyBorough STRING,
+TaxiPickUpLocation STRING,
+BridgeHighwayName STRING,
+BridgeHighwayDirection STRING,
+RoadRamp STRING,
+BridgeHighwaySegment STRING,
+Latitude STRING,
+Longitude STRING,
+Location STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+STORED AS TEXTFILE LOCATION '/user/whe8/CIS5200Project'
+TBLPROPERTIES ('skip.header.line.count'='1');
+
+5, Number of Case by year
+
+Select Substr(CreatedDate,7,4) AS YEAR, count(UniqueKey) as NumofCase from Service group by Substr(CreatedDate,7,4) order by YEAR;
+
+6, Number of days to close a case
+
+We use two functions to convert the date time format to the one which can be recognized in Hive. Since the data in “ClosedDate” is not very clear, and some are empty and some are in the year of 1900, therefore we specify two condition to make sure the validity of the ClosedDate.
+
+Select Substr(CreatedDate,7,4) as Year,avg( datediff(from_unixtime(unix_timestamp(ClosedDate,'MM/dd/yyyy HH:m:ss'),'yyyy-MM-dd'), from_unixtime(unix_timestamp(CreatedDate,'MM/dd/yyyy HH:m:ss'),'yyyy-MM-dd'))) as AvgD from service where (Substr(ClosedDate,7,4) between 2010 and 2019) and  from_unixtime(unix_timestamp(ClosedDate,'MM/dd/yyyy HH:m:ss'),'yyyy-MM-dd') >= from_unixtime(unix_timestamp(CreatedDate,'MM/dd/yyyy HH:m:ss'),'yyyy-MM-dd') group by Substr(CreatedDate,7,4) order by Year;
+
+7, Case number by complaint type (top 100)
+Select ComplaintType, count(UniqueKey) as NumofCase from Service group by ComplaintType order by NumofCase desc limit 10;
+
+8, Case number by city (top 100)
+Select City, count(UniqueKey) as NumofCase from Service group by City order by NumofCase desc limit 10;
+
+9,Case number by complaint channel (top 10)
+Select OpenDataChannelType, count(UniqueKey) as NumofCase from Service group by OpenDataChannelType ORDER BY NumofCase DESC LIMIT 10;
+
+10, Case number by complaint and Borough (over 15000)
+Select Borough,ComplaintType,count(UniqueKey) as NumofCase from Service group by Borough,ComplaintType having NumofCase>150000 order by NumofCase limit 100;
+
+
+11, All the cases reported on July 4 2019. 
+
+We want to see the case distribution of case geographically using map.Some records does not have either latitude or longitude, therefore we use a where condition to ensure the data completeness. Hereafter is the select query in Hive: 
+
+Select Latitude, Longitude,ComplaintType,CreatedDate,ClosedDate from Service where Substr(CreatedDate,1,10)='07/04/2019' and Latitude !='' and Longitude !='';
+
+Since there is a lot of rows, therefore we use the following query to write the query result to a text file:
+INSERT OVERWRITE DIRECTORY '/user/whe8/test' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' Select * from Service where Substr(CreatedDate,1,10)='07/04/2019' and Latitude !='' and Longitude !='';
+
+After we generate the result file, then copy the file to local drive of the server by the below command:
+hdfs dfs -copyToLocal /user/whe8/test/000000_0 Resultset0704
+
+After that, we use SCP to copy it down to local computer by below command:
+Scp whe8@34.221.40.43:/home/whe8/Resultset0704 CIS0704.csv
+
+
+
+
