@@ -1,7 +1,8 @@
 Codes of our project
 
 1, Upload the dataset to AWS cluster:
-Scp 311Service.csv whe8@34.221.40.43:/home/whe8/
+Scp 311Service.zip whe8@34.221.40.43:/home/whe8/
+unzip 311Service.zip
 
 2, Create folder in hadoop distributed  file system to hold the dataset
 hdfs dfs -mkdir CIS5200Project
@@ -67,19 +68,22 @@ We use two functions to convert the date time format to the one which can be rec
 
 Select Substr(CreatedDate,7,4) as Year,avg( datediff(from_unixtime(unix_timestamp(ClosedDate,'MM/dd/yyyy HH:m:ss'),'yyyy-MM-dd'), from_unixtime(unix_timestamp(CreatedDate,'MM/dd/yyyy HH:m:ss'),'yyyy-MM-dd'))) as AvgD from service where (Substr(ClosedDate,7,4) between 2010 and 2019) and  from_unixtime(unix_timestamp(ClosedDate,'MM/dd/yyyy HH:m:ss'),'yyyy-MM-dd') >= from_unixtime(unix_timestamp(CreatedDate,'MM/dd/yyyy HH:m:ss'),'yyyy-MM-dd') group by Substr(CreatedDate,7,4) order by Year;
 
-7, Case number by complaint type (top 100)
+7,Number of case by complaint channel (top 20)
+Select OpenDataChannelType, count(UniqueKey) as NumofCase from Service where OpenDataChannelType !='' group by OpenDataChannelType order by NumofCase desc limit 20;
+
+8, Case number by complaint type (top 100)
 Select ComplaintType, count(UniqueKey) as NumofCase from Service group by ComplaintType order by NumofCase desc limit 10;
 
-8, Case number by city (top 100)
+9, Case number by city (top 100)
 Select City, count(UniqueKey) as NumofCase from Service group by City order by NumofCase desc limit 10;
 
-9,Case number by complaint channel (top 10)
+10,Case number by complaint channel (top 10)
 Select OpenDataChannelType, count(UniqueKey) as NumofCase from Service group by OpenDataChannelType ORDER BY NumofCase DESC LIMIT 10;
 
-10, Case number by complaint and Borough (over 150000)
+11, Case number by complaint and Borough (over 150000)
 Select Borough,ComplaintType,count(UniqueKey) as NumofCase from Service group by Borough,ComplaintType having NumofCase>150000 order by NumofCase limit 100;
 
-11, All the cases reported on July 4 2019. 
+12, All the cases reported on July 4 2019. 
 
 We want to see the case distribution geographically by using map. Some records does not have either latitude or longitude, therefore we use a "where condition" to ensure the data completeness. Hereafter is the select query in Hive: 
 
@@ -94,6 +98,6 @@ hdfs dfs -copyToLocal /user/whe8/test/000000_0 Resultset0704
 After that, we use SCP to copy it down to local computer by below command:
 Scp whe8@34.221.40.43:/home/whe8/Resultset0704 CIS0704.csv
 
-
-
+13,The case number by hour on july 4,2019, with both latitude and longitude values.
+Select hour(from_unixtime(unix_timestamp(CreatedDate,'MM/dd/yyyy hh:mm:ss a'),'yyyy-MM-dd HH:m:ss')) as Hr, count(UniqueKey) as NumofCase from Service where Substr(CreatedDate,1,10)='07/04/2019' and Latitude !='' and Longitude !='' group by hour(from_unixtime(unix_timestamp(CreatedDate,'MM/dd/yyyy hh:mm:ss a'),'yyyy-MM-dd HH:m:ss')) order by Hr ASC;
 
